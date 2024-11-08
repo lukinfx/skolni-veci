@@ -33,7 +33,7 @@ def delete_item(item_id):
     supabase.table('items').delete().eq("id", item_id).execute()
 
 # Streamlit app
-st.title("Simple Checklist App with Supabase")
+st.title("Checklist App")
 
 # Collapsible form to add new item
 with st.expander("Add New Item"):
