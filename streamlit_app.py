@@ -56,21 +56,22 @@ create_table()
 # Streamlit app
 st.title("Simple Checklist App")
 
-# Form to add new item
-with st.form("Add New Item"):
-    title = st.text_input("Title")
-    description = st.text_area("Description")
-    subject = st.text_input("Subject")
-    deadline = st.date_input("Deadline Date")
-    deadline_time = st.time_input("Deadline Time")
-    state = st.selectbox("State", ["Not Done", "Done"])
-    submitted = st.form_submit_button("Add Item")
-    if submitted:
-        # Combine deadline date and time
-        deadline_datetime = datetime.combine(deadline, deadline_time)
-        add_item(title, description, subject, deadline_datetime.strftime("%Y-%m-%d %H:%M:%S"), state)
-        st.success("Item added successfully")
-        st.rerun()
+# Collapsible form to add new item
+with st.expander("Add New Item"):
+    with st.form("Add New Item Form"):
+        title = st.text_input("Title")
+        description = st.text_area("Description")
+        subject = st.text_input("Subject")
+        deadline = st.date_input("Deadline Date")
+        deadline_time = st.time_input("Deadline Time")
+        state = st.selectbox("State", ["Not Done", "Done"])
+        submitted = st.form_submit_button("Add Item")
+        if submitted:
+            # Combine deadline date and time
+            deadline_datetime = datetime.combine(deadline, deadline_time)
+            add_item(title, description, subject, deadline_datetime.strftime("%Y-%m-%d %H:%M:%S"), state)
+            st.success("Item added successfully")
+            st.rerun()
 
 # Get all items
 items = get_all_items()
