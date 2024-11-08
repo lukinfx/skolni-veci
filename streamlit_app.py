@@ -1,60 +1,39 @@
 import streamlit as st
-import sqlite3
 import pandas as pd
 from datetime import datetime, timedelta
+from supabase import create_client, Client
 
-# Database functions
-def create_table():
-    conn = sqlite3.connect('data.db')
-    c = conn.cursor()
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS items (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT NOT NULL,
-            description TEXT,
-            subject TEXT,
-            deadline DATETIME,
-            state TEXT
-        )
-    ''')
-    conn.commit()
-    conn.close()
+# Initialize Supabase client
+supabase_url = st.secrets["database"]["SUPABASE_URL"]
+supabase_key = st.secrets["database"]["SUPABASE_KEY"]
+supabase: Client = create_client(supabase_url, supabase_key)
 
+# Function to add a new item
 def add_item(title, description, subject, deadline, state):
-    conn = sqlite3.connect('data.db')
-    c = conn.cursor()
-    c.execute('INSERT INTO items (title, description, subject, deadline, state) VALUES (?,?,?,?,?)',
-              (title, description, subject, deadline, state))
-    conn.commit()
-    conn.close()
+    data = {
+        "title": title,
+        "description": description,
+        "subject": subject,
+        "deadline": deadline,
+        "state": state
+    }
+    supabase.table('items').insert(data).execute()
 
+# Function to get all items
 def get_all_items():
-    conn = sqlite3.connect('data.db')
-    c = conn.cursor()
-    c.execute('SELECT * FROM items')
-    data = c.fetchall()
-    conn.close()
-    return data
+    response = supabase.table('items').select("*").execute()
+    return response.data
 
+# Function to update the state of an item
 def update_item_state(item_id, state):
-    conn = sqlite3.connect('data.db')
-    c = conn.cursor()
-    c.execute('UPDATE items SET state=? WHERE id=?', (state, item_id))
-    conn.commit()
-    conn.close()
+    supabase.table('items').update({"state": state}).eq("id", item_id).execute()
 
+# Function to delete an item
 def delete_item(item_id):
-    conn = sqlite3.connect('data.db')
-    c = conn.cursor()
-    c.execute('DELETE FROM items WHERE id=?', (item_id,))
-    conn.commit()
-    conn.close()
-
-# Create the table
-create_table()
+    supabase.table('items').delete().eq("id", item_id).execute()
 
 # Streamlit app
-st.title("Simple Checklist App")
+st.title("Simple Checklist App with Supabase")
 
 # Collapsible form to add new item
 with st.expander("Add New Item"):
