@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta
 from supabase import create_client, Client
+from datetime import timezone
 
 # Initialize Supabase client
 supabase_url = st.secrets["database"]["SUPABASE_URL"]
@@ -70,14 +71,11 @@ if items:
     # Sort by deadline
     sort_by_deadline = st.sidebar.checkbox("Sort by Deadline")
 
-    # Convert deadline to datetime
-    df['deadline'] = pd.to_datetime(df['deadline'])
-
+    df['deadline'] = pd.to_datetime(df['deadline'], utc=True)
+    now = datetime.now(timezone.utc)
+    df['time_remaining'] = df['deadline'] - now
     if sort_by_deadline:
         df = df.sort_values(by='deadline')
-
-    # Compute countdown
-    df['time_remaining'] = df['deadline'] - datetime.now()
 
     def format_timedelta(td):
         if td.total_seconds() < 0:
