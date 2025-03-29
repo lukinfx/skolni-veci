@@ -17,7 +17,7 @@ def add_item(title, description, subject, deadline, state):
         "deadline": deadline,
         "state": state
     }
-    supabase.table('items').insert(data).execute()
+    supabase.table('items').insert([data]).execute()
 
 # Function to get all items
 def get_all_items():
